@@ -1,0 +1,5 @@
+development:
+  dialect: postgres
+  datasource: postgres://avito_user:avito_pass@localhost:5433/avito?sslmode=disable
+  dir: .
+  table: migrations

@@ -1,0 +1,13 @@
+version: '3.9'
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: avito_user
+      POSTGRES_PASSWORD: avito_pass
+      POSTGRES_DB: avito
+    volumes:
+       - /private/var/lib/postgresql:/var/lib/postgresql
+    ports:
+      - "5433:5432"

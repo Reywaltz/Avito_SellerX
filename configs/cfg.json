@@ -1,0 +1,3 @@
+{
+    "connstring": "postgres://avito_user:avito_pass@localhost:5433/avito"
+}
