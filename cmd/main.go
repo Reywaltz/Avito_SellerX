@@ -6,6 +6,7 @@ import (
 	"github.com/Reywaltz/avito_backend/cmd/avito_api/handlers"
 	"github.com/Reywaltz/avito_backend/configs"
 	"github.com/Reywaltz/avito_backend/internal/repository/chat_repo"
+	"github.com/Reywaltz/avito_backend/internal/repository/message_repo"
 	"github.com/Reywaltz/avito_backend/internal/repository/user_repo"
 	log "github.com/Reywaltz/avito_backend/pkg/log"
 	"github.com/Reywaltz/avito_backend/pkg/postgres"
@@ -33,17 +34,22 @@ func main() {
 	log.Infof("Created UserRepo")
 	chat_rep := chat_repo.NewChatRepository(db, log)
 	log.Infof("Created ChatRepo")
+	message_rep := message_repo.NewMessageRepository(db, log)
+	log.Infof("Created ChatRepo")
 
 	userHandlers := handlers.NewUserHandlers(log, user_rep)
 	log.Infof("Created User handlers")
 	chatHandlers := handlers.NewChatHandlers(log, chat_rep, user_rep)
 	log.Infof("Created Chat handlers")
+	messageHandlers := handlers.NewMessageHandlers(log, message_rep)
+	log.Infof("Created Message handlers")
 
 	router := mux.NewRouter()
 	router.StrictSlash(true)
 
 	userHandlers.Route(router)
 	chatHandlers.Route(router)
+	messageHandlers.Route(router)
 
 	http.Handle("/", router)
 

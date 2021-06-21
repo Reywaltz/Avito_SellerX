@@ -63,3 +63,29 @@ func (r *ChatRepo) Create(chat chats.Chat) (int, error) {
 
 	return chatID, nil
 }
+
+const (
+	GetUsersChat = `select ` + selectUserFields + ` from users_chats 
+	inner join chats on users_chats.chat_id = chats.id where user_id = $1 ORDER BY created_at DESC`
+)
+
+func (r *ChatRepo) GetChats(userID int) ([]chats.Chat, error) {
+	var out []chats.Chat
+
+	res, err := r.db.Pool().Query(context.Background(), GetUsersChat, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	for res.Next() {
+		var tmp chats.Chat
+
+		if err = res.Scan(&tmp.ID, &tmp.Name, &tmp.CreatedAt); err != nil {
+			return nil, err
+		}
+
+		out = append(out, tmp)
+	}
+
+	return out, nil
+}
