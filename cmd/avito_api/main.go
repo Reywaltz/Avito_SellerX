@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/Reywaltz/avito_backend/cmd/avito_api/handlers"
-	"github.com/Reywaltz/avito_backend/configs"
 	"github.com/Reywaltz/avito_backend/internal/repository/chat_repo"
 	"github.com/Reywaltz/avito_backend/internal/repository/message_repo"
 	"github.com/Reywaltz/avito_backend/internal/repository/user_repo"
@@ -20,7 +19,7 @@ func main() {
 	}
 	log.Infof("Inited Logger")
 
-	cfg, err := configs.InitConfig()
+	cfg, err := postgres.InitConfig()
 	if err != nil {
 		log.Fatalf("Can't init config object")
 	}
@@ -30,11 +29,11 @@ func main() {
 		log.Fatalf("Can't connect to database: %s", err.Error())
 	}
 
-	user_rep := user_repo.NewUserRepository(db, log)
+	user_rep := user_repo.NewUserRepository(db)
 	log.Infof("Created UserRepo")
-	chat_rep := chat_repo.NewChatRepository(db, log)
+	chat_rep := chat_repo.NewChatRepository(db)
 	log.Infof("Created ChatRepo")
-	message_rep := message_repo.NewMessageRepository(db, log)
+	message_rep := message_repo.NewMessageRepository(db)
 	log.Infof("Created ChatRepo")
 
 	userHandlers := handlers.NewUserHandlers(log, user_rep)
@@ -50,6 +49,7 @@ func main() {
 	userHandlers.Route(router)
 	chatHandlers.Route(router)
 	messageHandlers.Route(router)
+	log.Infof("Inited router mux")
 
 	http.Handle("/", router)
 

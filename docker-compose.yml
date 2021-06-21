@@ -11,3 +11,12 @@ services:
        - /private/var/lib/postgresql:/var/lib/postgresql
     ports:
       - "5433:5432"
+  
+  # avito_api:
+  #   build: .
+  #   environment: 
+  #     Dev: "true"
+  #   ports: 
+  #     - "9000:9000"
+  #   depends_on: 
+  #     - db

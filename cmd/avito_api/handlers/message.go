@@ -12,6 +12,7 @@ import (
 type MessageRepository interface {
 	Create(message messages.Message) (int, error)
 	GetMessages(message messages.Message) ([]messages.Message, error)
+	GetChatMessages(message messages.Message) ([]messages.Message, error)
 }
 
 type MessageHandlers struct {
@@ -71,6 +72,40 @@ func (q *MessageHandlers) GetMessages(writer http.ResponseWriter, request *http.
 	}
 
 	out, _ := json.Marshal(res)
+
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(http.StatusOK)
+	writer.Write(out)
+
+	return
+}
+
+func (q *MessageHandlers) GetChatMessages(writer http.ResponseWriter, request *http.Request) {
+	var message messages.Message
+
+	if err := message.GetBind(request); err != nil {
+		q.Log.Errorf("Can't bind Json: %s", err)
+
+		writer.WriteHeader(http.StatusBadRequest)
+
+		return
+	}
+
+	res, err := q.MessageRepo.GetChatMessages(message)
+	if err != nil {
+		q.Log.Errorf("Can't get messages: %s", err)
+		writer.WriteHeader(http.StatusInternalServerError)
+
+		return
+	}
+
+	out, err := json.Marshal(res)
+	if err != nil {
+		q.Log.Errorf("Can't marshall res: %s", err)
+		writer.WriteHeader(http.StatusInternalServerError)
+
+		return
+	}
 
 	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(http.StatusOK)

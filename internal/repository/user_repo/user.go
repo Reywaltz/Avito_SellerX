@@ -2,10 +2,8 @@ package user_repo
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Reywaltz/avito_backend/internal/models/users"
-	log "github.com/Reywaltz/avito_backend/pkg/log"
 	"github.com/Reywaltz/avito_backend/pkg/postgres"
 )
 
@@ -15,14 +13,12 @@ const (
 )
 
 type UserRepo struct {
-	db     *postgres.DB
-	logger log.Logger
+	db *postgres.DB
 }
 
-func NewUserRepository(db *postgres.DB, logger log.Logger) *UserRepo {
+func NewUserRepository(db *postgres.DB) *UserRepo {
 	return &UserRepo{
-		db:     db,
-		logger: logger,
+		db: db,
 	}
 }
 
@@ -35,10 +31,10 @@ func (r *UserRepo) Create(user users.User) (int, error) {
 
 	if err := row.Scan(&createdID); err != nil {
 		if postgres.IsDuplicated(err) {
-			return -1, postgres.DuplicateError
+			return 0, postgres.DuplicateError
 		}
 
-		return -1, err
+		return 0, err
 	}
 
 	return createdID, nil
@@ -52,9 +48,8 @@ const (
 func (r *UserRepo) GetAll() ([]users.User, error) {
 	res, err := r.db.Pool().Query(context.Background(), selectUsers)
 	if err != nil {
-		r.logger.Errorf("Can't init query to database: %s", err.Error())
 
-		return nil, fmt.Errorf("Can't init query to database: %s", err)
+		return nil, err
 	}
 
 	out := make([]users.User, 0)

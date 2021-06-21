@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/Reywaltz/avito_backend/internal/models/messages"
-	log "github.com/Reywaltz/avito_backend/pkg/log"
 	"github.com/Reywaltz/avito_backend/pkg/postgres"
 )
 
@@ -15,14 +14,12 @@ const (
 )
 
 type MessageRepo struct {
-	db     *postgres.DB
-	logger log.Logger
+	db *postgres.DB
 }
 
-func NewMessageRepository(db *postgres.DB, logger log.Logger) *MessageRepo {
+func NewMessageRepository(db *postgres.DB) *MessageRepo {
 	return &MessageRepo{
-		db:     db,
-		logger: logger,
+		db: db,
 	}
 }
 
@@ -49,13 +46,36 @@ func (r *MessageRepo) Create(message messages.Message) (int, error) {
 }
 
 const (
-	getMessages = `SELECT ` + selectMessageFields + ` FROM messages WHERE chat=$1 ORDER BY created_at DESC`
+	GetMessages = `SELECT ` + selectMessageFields + ` FROM messages WHERE chat=$1 ORDER BY created_at DESC`
 )
 
 func (r *MessageRepo) GetMessages(message messages.Message) ([]messages.Message, error) {
-	var out []messages.Message
+	out := make([]messages.Message, 0)
 
-	res, err := r.db.Pool().Query(context.Background(), getMessages, message.Chat)
+	res, err := r.db.Pool().Query(context.Background(), GetMessages, message.Chat)
+	if err != nil {
+		return nil, err
+	}
+
+	for res.Next() {
+		var curMessage messages.Message
+		if err := res.Scan(&curMessage.ID, &curMessage.Chat, &curMessage.Author, &curMessage.Text, &curMessage.CreatedAt); err != nil {
+			return nil, err
+		}
+		out = append(out, curMessage)
+	}
+
+	return out, nil
+}
+
+const (
+	Chatmessagesquery = `select ` + selectMessageFields + `from messages where chat = $1 ORDER BY created_at DESC`
+)
+
+func (r *MessageRepo) GetChatMessages(message messages.Message) ([]messages.Message, error) {
+	out := make([]messages.Message, 0)
+
+	res, err := r.db.Pool().Query(context.Background(), Chatmessagesquery, message.Chat)
 	if err != nil {
 		return nil, err
 	}

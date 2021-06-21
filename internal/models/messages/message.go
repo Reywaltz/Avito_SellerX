@@ -64,7 +64,7 @@ func (m *Message) GetBind(r *http.Request) error {
 	type Alias Message
 
 	tmp := &struct {
-		Chat *string `json:"chat"`
+		Chat string `json:"chat"`
 		*Alias
 	}{
 		Alias: (*Alias)(m),
@@ -75,7 +75,7 @@ func (m *Message) GetBind(r *http.Request) error {
 	}
 
 	var chatID int
-	chatID, err = strconv.Atoi(*tmp.Chat)
+	chatID, err = strconv.Atoi(tmp.Chat)
 	if err != nil {
 		return err
 	}

@@ -75,7 +75,7 @@ func (q *UserHandlers) Create(writer http.ResponseWriter, request *http.Request)
 		return
 	} else {
 		writer.WriteHeader(http.StatusBadRequest)
-		q.Log.Errorf("Wrong JSON input: %s}", err)
+		q.Log.Errorf("Wrong JSON input")
 
 		return
 	}

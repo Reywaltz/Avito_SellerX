@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/Reywaltz/avito_backend/internal/models/chats"
-	log "github.com/Reywaltz/avito_backend/pkg/log"
 	"github.com/Reywaltz/avito_backend/pkg/postgres"
 )
 
@@ -15,14 +14,12 @@ const (
 )
 
 type ChatRepo struct {
-	db     *postgres.DB
-	logger log.Logger
+	db *postgres.DB
 }
 
-func NewChatRepository(db *postgres.DB, logger log.Logger) *ChatRepo {
+func NewChatRepository(db *postgres.DB) *ChatRepo {
 	return &ChatRepo{
-		db:     db,
-		logger: logger,
+		db: db,
 	}
 }
 
@@ -55,7 +52,6 @@ func (r *ChatRepo) Create(chat chats.Chat) (int, error) {
 			return 0, err
 		}
 	}
-
 	err = tx.Commit(context.Background())
 	if err != nil {
 		return 0, err
@@ -66,11 +62,12 @@ func (r *ChatRepo) Create(chat chats.Chat) (int, error) {
 
 const (
 	GetUsersChat = `select ` + selectUserFields + ` from users_chats 
-	inner join chats on users_chats.chat_id = chats.id where user_id = $1 ORDER BY created_at DESC`
+	inner join chats on users_chats.chat_id = chats.id 
+	where user_id = $1 ORDER BY created_at DESC`
 )
 
 func (r *ChatRepo) GetChats(userID int) ([]chats.Chat, error) {
-	var out []chats.Chat
+	out := make([]chats.Chat, 0)
 
 	res, err := r.db.Pool().Query(context.Background(), GetUsersChat, userID)
 	if err != nil {
@@ -83,7 +80,6 @@ func (r *ChatRepo) GetChats(userID int) ([]chats.Chat, error) {
 		if err = res.Scan(&tmp.ID, &tmp.Name, &tmp.CreatedAt); err != nil {
 			return nil, err
 		}
-
 		out = append(out, tmp)
 	}
 
