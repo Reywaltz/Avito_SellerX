@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/Reywaltz/avito_backend/cmd/avito_api/handlers"
-	"github.com/Reywaltz/avito_backend/internal/repository/chatrepo"
-	"github.com/Reywaltz/avito_backend/internal/repository/message_repo"
-	"github.com/Reywaltz/avito_backend/internal/repository/user_repo"
+	chatRepo "github.com/Reywaltz/avito_backend/internal/repository/chat"
+	messageRepo "github.com/Reywaltz/avito_backend/internal/repository/message"
+	userRepo "github.com/Reywaltz/avito_backend/internal/repository/user"
 	log "github.com/Reywaltz/avito_backend/pkg/log"
 	"github.com/Reywaltz/avito_backend/pkg/postgres"
 	"github.com/gorilla/mux"
@@ -24,11 +24,11 @@ func main() {
 		log.Fatalf("Can't connect to database: %s", err.Error())
 	}
 
-	user_rep := user_repo.NewUserRepository(db)
+	user_rep := userRepo.NewUserRepository(db)
 	log.Infof("Created UserRepo")
-	chat_rep := chatrepo.NewChatRepository(db)
+	chat_rep := chatRepo.NewChatRepository(db)
 	log.Infof("Created ChatRepo")
-	message_rep := message_repo.NewMessageRepository(db)
+	message_rep := messageRepo.NewMessageRepository(db)
 	log.Infof("Created MessageRepo")
 
 	userHandlers := handlers.NewUserHandlers(log, user_rep)

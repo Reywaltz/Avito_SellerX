@@ -1,4 +1,4 @@
-package chatrepo
+package chat
 
 import (
 	"context"

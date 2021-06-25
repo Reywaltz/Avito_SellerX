@@ -1,4 +1,4 @@
-package message_repo
+package message
 
 import (
 	"context"

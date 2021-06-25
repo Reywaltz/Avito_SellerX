@@ -1,4 +1,4 @@
-package user_repo
+package user
 
 import (
 	"context"
@@ -48,7 +48,6 @@ const (
 func (r *UserRepo) GetAll() ([]users.User, error) {
 	res, err := r.db.Conn().Query(context.Background(), selectUsers)
 	if err != nil {
-
 		return nil, err
 	}
 

@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Reywaltz/avito_backend/internal/additions"
+	"github.com/Reywaltz/avito_backend/cmd/avito_api/additions"
 	"github.com/Reywaltz/avito_backend/internal/message"
 	"github.com/Reywaltz/avito_backend/internal/models/users"
 	log "github.com/Reywaltz/avito_backend/pkg/log"
