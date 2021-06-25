@@ -19,12 +19,7 @@ func main() {
 	}
 	log.Infof("Inited Logger")
 
-	cfg, err := postgres.InitConfig()
-	if err != nil {
-		log.Fatalf("Can't init config object")
-	}
-
-	db, err := postgres.NewDB(cfg)
+	db, err := postgres.NewDB()
 	if err != nil {
 		log.Fatalf("Can't connect to database: %s", err.Error())
 	}

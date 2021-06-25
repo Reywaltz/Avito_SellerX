@@ -32,20 +32,19 @@ func NewUserHandlers(logger log.Logger, userRepo UserRepository) *UserHandlers {
 	}
 }
 
-func (q *UserHandlers) GetAll(writer http.ResponseWriter, request *http.Request) {
+func (q *UserHandlers) GetAll(w http.ResponseWriter, r *http.Request) {
 	out, _ := q.UserRepo.GetAll()
 
-	r, _ := json.Marshal(out)
-	writer.Header().Set("Content-Type", "application/json")
-	writer.Write(r)
+	res, _ := json.Marshal(out)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(res)
 }
 
-func (q *UserHandlers) Create(writer http.ResponseWriter, request *http.Request) {
+func (q *UserHandlers) Create(w http.ResponseWriter, r *http.Request) {
 	var user users.User
 
-	err := user.Bind(request)
-	if err != nil {
-		writer.WriteHeader(http.StatusBadRequest)
+	if err := user.Bind(r); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		q.Log.Errorf("Got emplty json")
 
 		return
@@ -57,24 +56,24 @@ func (q *UserHandlers) Create(writer http.ResponseWriter, request *http.Request)
 		id, err := q.UserRepo.Create(user)
 		if err != nil {
 			if errors.Is(err, postgres.DuplicateError) {
-				writer.WriteHeader(http.StatusBadRequest)
+				w.WriteHeader(http.StatusBadRequest)
 				q.Log.Errorf("Can't create entity: %s", err)
 
 				return
 			}
 
-			writer.WriteHeader(http.StatusInternalServerError)
+			w.WriteHeader(http.StatusInternalServerError)
 			q.Log.Errorf("Can't create entity: %s", err)
 
 			return
 		}
 
-		message.MakeResponse(writer, id, http.StatusCreated)
+		message.MakeResponse(w, id, http.StatusCreated)
 		q.Log.Infof("Created user with id: {%d}", id)
 
 		return
 	} else {
-		writer.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
 		q.Log.Errorf("Wrong JSON input")
 
 		return
