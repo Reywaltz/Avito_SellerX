@@ -68,6 +68,7 @@ func (q *ChatHandlers) Create(w http.ResponseWriter, r *http.Request) {
 	message.MakeResponse(w, chatID, http.StatusCreated)
 }
 
+// TODO Validate if user exsists.
 func (q *ChatHandlers) GetChats(w http.ResponseWriter, r *http.Request) {
 	var user users.User
 

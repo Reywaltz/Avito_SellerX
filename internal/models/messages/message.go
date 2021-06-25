@@ -13,7 +13,7 @@ type Message struct {
 	ID        int       `json:"id"`
 	Chat      int       `json:"chat"`
 	Author    int       `json:"author"`
-	Text      string    `json:"text"`
+	Text      *string   `json:"text"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
@@ -37,7 +37,7 @@ func (m *Message) PostBind(r *http.Request) error {
 		return err
 	}
 
-	if tmp.Chat == nil || tmp.Author == nil {
+	if tmp.Chat == nil || tmp.Author == nil || tmp.Text == nil {
 		return errors.New("Bad request")
 	}
 
