@@ -48,7 +48,7 @@ func (u *User) GetBind(r *http.Request) error {
 	}
 
 	if tmp.User == nil {
-		return errors.New("UserID is empty")
+		return errors.New("User is empty")
 	}
 
 	userID, err := strconv.Atoi(*tmp.User)

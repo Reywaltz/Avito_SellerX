@@ -12,6 +12,7 @@ import (
 	log "github.com/Reywaltz/avito_backend/pkg/log"
 	"github.com/Reywaltz/avito_backend/pkg/postgres"
 	"github.com/gorilla/mux"
+	"github.com/jackc/pgx/v4"
 )
 
 type ChatRepository interface {
@@ -75,6 +76,20 @@ func (q *ChatHandlers) GetChats(w http.ResponseWriter, r *http.Request) {
 	if err := user.GetBind(r); err != nil {
 		q.Log.Errorf("Can't bind json: %s", err)
 		w.WriteHeader(http.StatusBadRequest)
+
+		return
+	}
+
+	_, err := q.UserRepo.GetOne(user)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			q.Log.Errorf("User id=%d doesn't exist", user.ID)
+			w.WriteHeader(http.StatusNotFound)
+
+			return
+		}
+		q.Log.Errorf("Can't get data from db: %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
 
 		return
 	}
