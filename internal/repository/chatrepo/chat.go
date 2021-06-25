@@ -5,12 +5,13 @@ import (
 	"time"
 
 	"github.com/Reywaltz/avito_backend/internal/models/chats"
+	"github.com/Reywaltz/avito_backend/internal/models/users"
 	"github.com/Reywaltz/avito_backend/pkg/postgres"
 )
 
 const (
 	chatFields       = `name, created_at`
-	selectUserFields = `id, ` + chatFields
+	selectChatFields = `id, ` + chatFields
 )
 
 type ChatRepo struct {
@@ -61,15 +62,15 @@ func (r *ChatRepo) Create(chat chats.Chat) (int, error) {
 }
 
 const (
-	GetUsersChat = `select ` + selectUserFields + ` from users_chats 
+	GetUsersChat = `select ` + selectChatFields + ` from users_chats 
 	inner join chats on users_chats.chat_id = chats.id 
 	where user_id = $1 ORDER BY created_at DESC`
 )
 
-func (r *ChatRepo) GetChats(userID int) ([]chats.Chat, error) {
+func (r *ChatRepo) GetChats(user users.User) ([]chats.Chat, error) {
 	out := make([]chats.Chat, 0)
 
-	res, err := r.db.Conn().Query(context.Background(), GetUsersChat, userID)
+	res, err := r.db.Conn().Query(context.Background(), GetUsersChat, user.ID)
 	if err != nil {
 		return nil, err
 	}

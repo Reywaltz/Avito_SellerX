@@ -16,7 +16,7 @@ import (
 
 type ChatRepository interface {
 	Create(chat chats.Chat) (int, error)
-	GetChats(userID int) ([]chats.Chat, error)
+	GetChats(user users.User) ([]chats.Chat, error)
 }
 
 type ChatHandlers struct {
@@ -73,9 +73,12 @@ func (q *ChatHandlers) GetChats(w http.ResponseWriter, r *http.Request) {
 
 	if err := user.GetBind(r); err != nil {
 		q.Log.Errorf("Can't bind json: %s", err)
+		w.WriteHeader(http.StatusBadRequest)
+
+		return
 	}
 
-	res, err := q.ChatRepo.GetChats(user.ID)
+	res, err := q.ChatRepo.GetChats(user)
 	if err != nil {
 		q.Log.Errorf("Can't get chats: %s", err)
 		w.WriteHeader(http.StatusInternalServerError)

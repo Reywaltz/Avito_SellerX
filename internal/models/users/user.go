@@ -2,6 +2,7 @@ package users
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"strconv"
@@ -46,8 +47,11 @@ func (u *User) GetBind(r *http.Request) error {
 		return err
 	}
 
-	var userID int
-	userID, err = strconv.Atoi(*tmp.User)
+	if tmp.User == nil {
+		return errors.New("UserID is empty")
+	}
+
+	userID, err := strconv.Atoi(*tmp.User)
 	if err != nil {
 		return err
 	}
