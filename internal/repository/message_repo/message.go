@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/Reywaltz/avito_backend/internal/models/chats"
 	"github.com/Reywaltz/avito_backend/internal/models/messages"
 	"github.com/Reywaltz/avito_backend/pkg/postgres"
 )
@@ -69,24 +70,16 @@ func (r *MessageRepo) GetMessages(message messages.Message) ([]messages.Message,
 }
 
 const (
-	Chatmessagesquery = `select ` + selectMessageFields + `from messages where chat = $1 ORDER BY created_at DESC`
+	GetOne = `SELECT * FROM chats WHERE id = $1`
 )
 
-func (r *MessageRepo) GetChatMessages(message messages.Message) ([]messages.Message, error) {
-	out := make([]messages.Message, 0)
+func (r *MessageRepo) GetOne(message messages.Message) (chats.Chat, error) {
+	var chat chats.Chat
 
-	res, err := r.db.Conn().Query(context.Background(), Chatmessagesquery, message.Chat)
-	if err != nil {
-		return nil, err
+	res := r.db.Conn().QueryRow(context.Background(), GetOne, message.Chat)
+	if err := res.Scan(&chat.ID, &chat.Name, &chat.CreatedAt); err != nil {
+		return chat, err
 	}
 
-	for res.Next() {
-		var curMessage messages.Message
-		if err := res.Scan(&curMessage.ID, &curMessage.Chat, &curMessage.Author, &curMessage.Text, &curMessage.CreatedAt); err != nil {
-			return nil, err
-		}
-		out = append(out, curMessage)
-	}
-
-	return out, nil
+	return chat, nil
 }

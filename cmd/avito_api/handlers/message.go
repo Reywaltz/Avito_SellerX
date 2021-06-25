@@ -2,18 +2,21 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/Reywaltz/avito_backend/internal/message"
+	"github.com/Reywaltz/avito_backend/internal/models/chats"
 	"github.com/Reywaltz/avito_backend/internal/models/messages"
 	log "github.com/Reywaltz/avito_backend/pkg/log"
 	"github.com/gorilla/mux"
+	"github.com/jackc/pgx/v4"
 )
 
 type MessageRepository interface {
 	Create(message messages.Message) (int, error)
 	GetMessages(message messages.Message) ([]messages.Message, error)
-	GetChatMessages(message messages.Message) ([]messages.Message, error)
+	GetOne(message messages.Message) (chats.Chat, error)
 }
 
 type MessageHandlers struct {
@@ -60,6 +63,21 @@ func (q *MessageHandlers) GetMessages(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	_, err := q.MessageRepo.GetOne(message)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			q.Log.Errorf("Chat is not found: %s", err)
+			w.WriteHeader(http.StatusNotFound)
+
+			return
+		} else {
+			q.Log.Errorf("Can't get data from db: %s", err)
+			w.WriteHeader(http.StatusInternalServerError)
+
+			return
+		}
+	}
+
 	res, err := q.MessageRepo.GetMessages(message)
 	if err != nil {
 		q.Log.Errorf("Can't get messages: %s", res)
@@ -68,39 +86,6 @@ func (q *MessageHandlers) GetMessages(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	out, _ := json.Marshal(res)
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(out)
-
-	return
-}
-
-func (q *MessageHandlers) GetChatMessages(w http.ResponseWriter, r *http.Request) {
-	var message messages.Message
-
-	if err := message.GetBind(r); err != nil {
-		q.Log.Errorf("Can't bind Json: %s", err)
-		w.WriteHeader(http.StatusBadRequest)
-
-		return
-	}
-
-	res, err := q.MessageRepo.GetChatMessages(message)
-	if err != nil {
-		q.Log.Errorf("Can't get messages: %s", err)
-		w.WriteHeader(http.StatusInternalServerError)
-
-		return
-	}
-
-	out, err := json.Marshal(res)
-	if err != nil {
-		q.Log.Errorf("Can't marshall res: %s", err)
-		w.WriteHeader(http.StatusInternalServerError)
-
-		return
-	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
