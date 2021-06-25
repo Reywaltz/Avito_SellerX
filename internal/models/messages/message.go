@@ -2,6 +2,7 @@ package messages
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"strconv"
@@ -36,21 +37,22 @@ func (m *Message) PostBind(r *http.Request) error {
 		return err
 	}
 
-	var chatID int
-	chatID, err = strconv.Atoi(*tmp.Chat)
+	if tmp.Chat == nil || tmp.Author == nil {
+		return errors.New("Bad request")
+	}
+
+	chatID, err := strconv.Atoi(*tmp.Chat)
 	if err != nil {
 		return err
 	}
 
-	var authorID int
-	authorID, err = strconv.Atoi(*tmp.Author)
+	authorID, err := strconv.Atoi(*tmp.Author)
 	if err != nil {
 		return err
 	}
 
 	m.Chat = chatID
 	m.Author = authorID
-	m.CreatedAt = time.Now()
 
 	return nil
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/Reywaltz/avito_backend/internal/message"
 	"github.com/Reywaltz/avito_backend/internal/models/messages"
 	log "github.com/Reywaltz/avito_backend/pkg/log"
 	"github.com/gorilla/mux"
@@ -28,16 +29,16 @@ func NewMessageHandlers(logger log.Logger, messageRepo MessageRepository) *Messa
 }
 
 func (q *MessageHandlers) Create(w http.ResponseWriter, r *http.Request) {
-	var message messages.Message
+	var newMessage messages.Message
 
-	if err := message.PostBind(r); err != nil {
+	if err := newMessage.PostBind(r); err != nil {
 		q.Log.Errorf("Can't insert message: %s", err)
 		w.WriteHeader(http.StatusBadRequest)
 
 		return
 	}
 
-	messageID, err := q.MessageRepo.Create(message)
+	messageID, err := q.MessageRepo.Create(newMessage)
 	if err != nil {
 		q.Log.Errorf("Can't create new message: %s", err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -45,8 +46,8 @@ func (q *MessageHandlers) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	q.Log.Infof("New id: %d", messageID)
+	q.Log.Infof("New message id: %d", messageID)
+	message.MakeResponse(w, messageID, http.StatusCreated)
 }
 
 func (q *MessageHandlers) GetMessages(w http.ResponseWriter, r *http.Request) {
