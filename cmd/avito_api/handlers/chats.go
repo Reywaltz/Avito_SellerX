@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/Reywaltz/avito_backend/internal/message"
 	"github.com/Reywaltz/avito_backend/internal/models/chats"
 	"github.com/Reywaltz/avito_backend/internal/models/users"
 	log "github.com/Reywaltz/avito_backend/pkg/log"
@@ -19,36 +20,36 @@ type ChatRepository interface {
 }
 
 type ChatHandlers struct {
-	Log           log.Logger
-	ChatRepo      ChatRepository
-	UsersChatRepo UserRepository
+	Log      log.Logger
+	ChatRepo ChatRepository
+	UserRepo UserRepository
 }
 
 func NewChatHandlers(logger log.Logger, chatRepo ChatRepository, userRepo UserRepository) *ChatHandlers {
 	return &ChatHandlers{
-		Log:           logger,
-		ChatRepo:      chatRepo,
-		UsersChatRepo: userRepo,
+		Log:      logger,
+		ChatRepo: chatRepo,
+		UserRepo: userRepo,
 	}
 }
 
 func (q *ChatHandlers) Create(w http.ResponseWriter, r *http.Request) {
 	var chat chats.Chat
 
-	chat.Bind(r)
+	err := chat.Bind(r)
+	if err != nil {
+		q.Log.Errorf("Can't bind chat: {%s}", err)
+		w.WriteHeader(http.StatusBadRequest)
 
-	for _, item := range chat.Users {
-		tmp, err := strconv.Atoi(item)
+		return
+	}
+
+	for _, tmpID := range chat.Users {
+		userID, _ := strconv.Atoi(tmpID)
+		tmpUser := users.User{ID: userID}
+		_, err = q.UserRepo.GetOne(tmpUser)
 		if err != nil {
-			q.Log.Errorf("Can't parse user id: {%s}", item)
-			w.WriteHeader(http.StatusBadRequest)
-
-			return
-		}
-
-		_, err = q.UsersChatRepo.GetOne(tmp)
-		if err != nil {
-			q.Log.Errorf("Not exsisting user by id: {%d}", tmp)
+			q.Log.Errorf("Not exsisting user by id: {%d}", tmpUser.ID)
 			w.WriteHeader(http.StatusBadRequest)
 
 			return
@@ -64,7 +65,7 @@ func (q *ChatHandlers) Create(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	q.Log.Infof("Created chat with ID: {%d}", chatID)
-	w.WriteHeader(http.StatusCreated)
+	message.MakeResponse(w, chatID, http.StatusCreated)
 }
 
 func (q *ChatHandlers) GetChats(w http.ResponseWriter, r *http.Request) {

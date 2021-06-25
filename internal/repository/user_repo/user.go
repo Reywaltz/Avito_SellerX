@@ -27,7 +27,7 @@ const createUser = `INSERT INTO users ( ` + userFields + `) values ($1, $2) RETU
 func (r *UserRepo) Create(user users.User) (int, error) {
 	var createdID int
 
-	row := r.db.Pool().QueryRow(context.Background(), createUser, user.Username, user.CreatedAt)
+	row := r.db.Conn().QueryRow(context.Background(), createUser, user.Username, user.CreatedAt)
 
 	if err := row.Scan(&createdID); err != nil {
 		if postgres.IsDuplicated(err) {
@@ -46,7 +46,7 @@ const (
 )
 
 func (r *UserRepo) GetAll() ([]users.User, error) {
-	res, err := r.db.Pool().Query(context.Background(), selectUsers)
+	res, err := r.db.Conn().Query(context.Background(), selectUsers)
 	if err != nil {
 
 		return nil, err
@@ -65,14 +65,14 @@ func (r *UserRepo) GetAll() ([]users.User, error) {
 	return out, nil
 }
 
-func (r *UserRepo) GetOne(id int) (users.User, error) {
-	res := r.db.Pool().QueryRow(context.Background(), selectUserByID, id)
+func (r *UserRepo) GetOne(user users.User) (users.User, error) {
+	res := r.db.Conn().QueryRow(context.Background(), selectUserByID, user.ID)
 
-	var user users.User
-	err := res.Scan(&user.ID, &user.Username, &user.CreatedAt)
+	var out users.User
+	err := res.Scan(&out.ID, &out.Username, &out.CreatedAt)
 	if err != nil {
-		return user, err
+		return out, err
 	}
 
-	return user, nil
+	return out, nil
 }

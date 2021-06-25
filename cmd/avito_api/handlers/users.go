@@ -17,7 +17,7 @@ import (
 type UserRepository interface {
 	Create(user users.User) (int, error)
 	GetAll() ([]users.User, error)
-	GetOne(ID int) (users.User, error)
+	GetOne(user users.User) (users.User, error)
 }
 
 type UserHandlers struct {

@@ -21,26 +21,16 @@ func (c *Chat) Bind(r *http.Request) error {
 		return err
 	}
 
-	type Alias Chat
-
-	tmp := &struct {
-		Chat *string `json:"chat"`
-		*Alias
-	}{
-		Alias: (*Alias)(c),
-	}
-
-	if err := json.Unmarshal(body, &tmp); err != nil {
+	if err := json.Unmarshal(body, &c); err != nil {
 		return err
 	}
 
-	var chatID int
-	chatID, err = strconv.Atoi(*tmp.Chat)
-	if err != nil {
-		return err
+	for _, userID := range c.Users {
+		_, err = strconv.Atoi(userID)
+		if err != nil {
+			return err
+		}
 	}
-
-	c.ID = chatID
 
 	return nil
 }

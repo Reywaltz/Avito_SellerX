@@ -1,4 +1,4 @@
-package chat_repo
+package chatrepo
 
 import (
 	"context"
@@ -32,7 +32,7 @@ func (r *ChatRepo) Create(chat chats.Chat) (int, error) {
 	var chatID int
 
 	chat.CreatedAt = time.Now()
-	tx, err := r.db.Pool().Begin(context.Background())
+	tx, err := r.db.Conn().Begin(context.Background())
 	if err != nil {
 		return 0, err
 	}
@@ -69,7 +69,7 @@ const (
 func (r *ChatRepo) GetChats(userID int) ([]chats.Chat, error) {
 	out := make([]chats.Chat, 0)
 
-	res, err := r.db.Pool().Query(context.Background(), GetUsersChat, userID)
+	res, err := r.db.Conn().Query(context.Background(), GetUsersChat, userID)
 	if err != nil {
 		return nil, err
 	}

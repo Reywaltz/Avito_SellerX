@@ -32,7 +32,7 @@ func (r *MessageRepo) Create(message messages.Message) (int, error) {
 
 	message.CreatedAt = time.Now()
 
-	res := r.db.Pool().QueryRow(context.Background(), createMessage,
+	res := r.db.Conn().QueryRow(context.Background(), createMessage,
 		message.Chat,
 		message.Author,
 		message.Text,
@@ -52,7 +52,7 @@ const (
 func (r *MessageRepo) GetMessages(message messages.Message) ([]messages.Message, error) {
 	out := make([]messages.Message, 0)
 
-	res, err := r.db.Pool().Query(context.Background(), GetMessages, message.Chat)
+	res, err := r.db.Conn().Query(context.Background(), GetMessages, message.Chat)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ const (
 func (r *MessageRepo) GetChatMessages(message messages.Message) ([]messages.Message, error) {
 	out := make([]messages.Message, 0)
 
-	res, err := r.db.Pool().Query(context.Background(), Chatmessagesquery, message.Chat)
+	res, err := r.db.Conn().Query(context.Background(), Chatmessagesquery, message.Chat)
 	if err != nil {
 		return nil, err
 	}
