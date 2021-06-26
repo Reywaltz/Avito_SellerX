@@ -1,11 +1,9 @@
-package user_repo
+package user
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Reywaltz/avito_backend/internal/models/users"
-	log "github.com/Reywaltz/avito_backend/pkg/log"
 	"github.com/Reywaltz/avito_backend/pkg/postgres"
 )
 
@@ -15,14 +13,12 @@ const (
 )
 
 type UserRepo struct {
-	db     *postgres.DB
-	logger log.Logger
+	db *postgres.DB
 }
 
-func NewUserRepository(db *postgres.DB, logger log.Logger) *UserRepo {
+func NewUserRepository(db *postgres.DB) *UserRepo {
 	return &UserRepo{
-		db:     db,
-		logger: logger,
+		db: db,
 	}
 }
 
@@ -31,14 +27,14 @@ const createUser = `INSERT INTO users ( ` + userFields + `) values ($1, $2) RETU
 func (r *UserRepo) Create(user users.User) (int, error) {
 	var createdID int
 
-	row := r.db.Pool().QueryRow(context.Background(), createUser, user.Username, user.CreatedAt)
+	row := r.db.Conn().QueryRow(context.Background(), createUser, user.Username, user.CreatedAt)
 
 	if err := row.Scan(&createdID); err != nil {
 		if postgres.IsDuplicated(err) {
-			return -1, postgres.DuplicateError
+			return 0, postgres.DuplicateError
 		}
 
-		return -1, err
+		return 0, err
 	}
 
 	return createdID, nil
@@ -50,11 +46,9 @@ const (
 )
 
 func (r *UserRepo) GetAll() ([]users.User, error) {
-	res, err := r.db.Pool().Query(context.Background(), selectUsers)
+	res, err := r.db.Conn().Query(context.Background(), selectUsers)
 	if err != nil {
-		r.logger.Errorf("Can't init query to database: %s", err.Error())
-
-		return nil, fmt.Errorf("Can't init query to database: %s", err)
+		return nil, err
 	}
 
 	out := make([]users.User, 0)
@@ -70,14 +64,14 @@ func (r *UserRepo) GetAll() ([]users.User, error) {
 	return out, nil
 }
 
-func (r *UserRepo) GetOne(id int) (users.User, error) {
-	res := r.db.Pool().QueryRow(context.Background(), selectUserByID, id)
+func (r *UserRepo) GetOne(user users.User) (users.User, error) {
+	res := r.db.Conn().QueryRow(context.Background(), selectUserByID, user.ID)
 
-	var user users.User
-	err := res.Scan(&user.ID, &user.Username, &user.CreatedAt)
+	var out users.User
+	err := res.Scan(&out.ID, &out.Username, &out.CreatedAt)
 	if err != nil {
-		return user, err
+		return out, err
 	}
 
-	return user, nil
+	return out, nil
 }

@@ -2,25 +2,30 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"os"
 
-	"github.com/Reywaltz/avito_backend/configs"
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jackc/pgx/v4"
 )
 
 type DB struct {
-	pool *pgxpool.Pool
+	conn *pgx.Conn
 }
 
-func (db *DB) Pool() *pgxpool.Pool {
-	return db.pool
+func (db *DB) Conn() *pgx.Conn {
+	return db.conn
 }
 
-func NewDB(cfg configs.Config) (*DB, error) {
-	conn, err := pgxpool.Connect(context.Background(), cfg.ConnString)
+func NewDB() (*DB, error) {
+	connstring := os.Getenv("CONN_DB")
+	if connstring == "" {
+		return nil, errors.New("Connection string is not set")
+	}
+	conn, err := pgx.Connect(context.Background(), connstring)
 	if err != nil {
 		return nil, fmt.Errorf("Can't init connection to db: %w", err)
 	}
 
-	return &DB{pool: conn}, nil
+	return &DB{conn: conn}, nil
 }

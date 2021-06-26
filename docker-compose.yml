@@ -1,5 +1,17 @@
-version: '3.9'
+version: '3.8'
 services:
+  avito_api:
+    build: .
+    environment: 
+      DEV: "true"
+      CONN_DB: "postgres://avito_user:avito_pass@db:5432/avito"
+    ports: 
+      - "9000:9000"
+    restart: always
+    depends_on: 
+      db:
+        condition: service_healthy
+
   db:
     image: postgres:latest
     restart: always
@@ -7,7 +19,14 @@ services:
       POSTGRES_USER: avito_user
       POSTGRES_PASSWORD: avito_pass
       POSTGRES_DB: avito
+    restart: always
     volumes:
+       - ./sql/0001_schema.sql:/docker-entrypoint-initdb.d/1-init.sql
        - /private/var/lib/postgresql:/var/lib/postgresql
     ports:
       - "5433:5432"
+    healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+        interval: 10s
+        timeout: 5s
+        retries: 5

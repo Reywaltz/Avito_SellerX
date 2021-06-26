@@ -8,7 +8,7 @@ import (
 )
 
 func initLoggerConfig() zap.Config {
-	if os.Getenv("DEVELOPMENT") == "true" {
+	if os.Getenv("DEV") == "true" {
 		cfg := zap.Config{
 			Level:       zap.NewAtomicLevelAt(zap.DebugLevel),
 			Development: true,
@@ -36,7 +36,7 @@ func initLoggerConfig() zap.Config {
 			TimeKey:      "ts",
 			LevelKey:     "level",
 			CallerKey:    "caller",
-			EncodeLevel:  zapcore.LowercaseColorLevelEncoder,
+			EncodeLevel:  zapcore.LowercaseLevelEncoder,
 			MessageKey:   "msg",
 			EncodeCaller: zapcore.ShortCallerEncoder,
 			EncodeTime:   zapcore.ISO8601TimeEncoder,
