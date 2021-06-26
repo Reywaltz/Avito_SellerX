@@ -21,7 +21,7 @@ func main() {
 
 	db, err := postgres.NewDB()
 	if err != nil {
-		log.Fatalf("Can't connect to database: %s", err.Error())
+		log.Fatalf("Can't connect to database: %s", err)
 	}
 
 	user_rep := userRepo.NewUserRepository(db)

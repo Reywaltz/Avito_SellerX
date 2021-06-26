@@ -8,7 +8,7 @@ import (
 )
 
 func initLoggerConfig() zap.Config {
-	if os.Getenv("Dev") == "true" {
+	if os.Getenv("DEV") == "true" {
 		cfg := zap.Config{
 			Level:       zap.NewAtomicLevelAt(zap.DebugLevel),
 			Development: true,
