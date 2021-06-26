@@ -3,7 +3,7 @@ services:
   avito_api:
     build: .
     environment: 
-      DEV: "false"
+      DEV: "true"
       CONN_DB: "postgres://avito_user:avito_pass@db:5432/avito"
     ports: 
       - "9000:9000"

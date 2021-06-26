@@ -1,4 +1,3 @@
--- +migrate Up
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     username TEXT UNIQUE NOT NULL,
@@ -23,9 +22,3 @@ CREATE TABLE IF NOT EXISTS users_chats (
     chat_id INTEGER REFERENCES chats(id) ON DELETE CASCADE,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE
 );
-
--- -- +migrate Down
--- DROP TABLE users;
--- DROP TABLE chats;
--- DROP TABLE messages;
--- DROP TABLE users_chats;
