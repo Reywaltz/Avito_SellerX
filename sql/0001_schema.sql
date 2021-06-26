@@ -24,8 +24,8 @@ CREATE TABLE IF NOT EXISTS users_chats (
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE
 );
 
--- +migrate Down
-DROP TABLE users;
-DROP TABLE chats;
-DROP TABLE messages;
-DROP TABLE users_chats;
+-- -- +migrate Down
+-- DROP TABLE users;
+-- DROP TABLE chats;
+-- DROP TABLE messages;
+-- DROP TABLE users_chats;

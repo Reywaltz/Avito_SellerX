@@ -8,15 +8,16 @@ services:
       POSTGRES_PASSWORD: avito_pass
       POSTGRES_DB: avito
     volumes:
+       - ./migrations/0001_schema.sql:/docker-entrypoint-initdb.d/1-init.sql
        - /private/var/lib/postgresql:/var/lib/postgresql
     ports:
       - "5433:5432"
   
-  # avito_api:
-  #   build: .
-  #   environment: 
-  #     Dev: "true"
-  #   ports: 
-  #     - "9000:9000"
-  #   depends_on: 
-  #     - db
+  avito_api:
+    build: .
+    environment: 
+      Dev: "false"
+    ports: 
+      - "9000:9000"
+    depends_on: 
+      - db

@@ -36,7 +36,7 @@ func initLoggerConfig() zap.Config {
 			TimeKey:      "ts",
 			LevelKey:     "level",
 			CallerKey:    "caller",
-			EncodeLevel:  zapcore.LowercaseColorLevelEncoder,
+			EncodeLevel:  zapcore.LowercaseLevelEncoder,
 			MessageKey:   "msg",
 			EncodeCaller: zapcore.ShortCallerEncoder,
 			EncodeTime:   zapcore.ISO8601TimeEncoder,

@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	connstring = "postgres://avito_user:avito_pass@localhost:5433/avito"
+	connstring = "postgres://avito_user:avito_pass@db:5432/avito"
 )
 
 type DB struct {
