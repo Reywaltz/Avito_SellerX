@@ -1,6 +1,6 @@
 FROM golang:latest
 
-WORKDIR /go/src/github.com/Reywaltz/avito_backend
+WORKDIR /github.com/Reywaltz/avito_backend
 
 COPY . .
 

@@ -58,11 +58,9 @@ func (q *MessageHandlers) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	q.Log.Errorf("User %d is not present in chat %d", newMessage.Author, newMessage.Chat)
-	rawJSON := []byte(`{"error": "user not present in chat"}`)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusBadRequest)
-	w.Write(rawJSON)
 
 	return
 }
