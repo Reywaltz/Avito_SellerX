@@ -17,6 +17,7 @@ type MessageRepository interface {
 	Create(message messages.Message) (int, error)
 	GetMessages(message messages.Message) ([]messages.Message, error)
 	GetOne(message messages.Message) (chats.Chat, error)
+	CheckUser(message messages.Message) bool
 }
 
 type MessageHandlers struct {
@@ -41,16 +42,27 @@ func (q *MessageHandlers) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	messageID, err := q.MessageRepo.Create(newMessage)
-	if err != nil {
-		q.Log.Errorf("Can't create new message: %s", err)
-		w.WriteHeader(http.StatusBadRequest)
+	if q.MessageRepo.CheckUser(newMessage) {
+		messageID, err := q.MessageRepo.Create(newMessage)
+		if err != nil {
+			q.Log.Errorf("Can't create new message: %s", err)
+			w.WriteHeader(http.StatusBadRequest)
 
-		return
+			return
+		}
+
+		q.Log.Infof("New message id: %d", messageID)
+		message.MakeResponse(w, messageID, http.StatusCreated)
 	}
 
-	q.Log.Infof("New message id: %d", messageID)
-	message.MakeResponse(w, messageID, http.StatusCreated)
+	q.Log.Errorf("User %d is not present in chat %d", newMessage.Author, newMessage.Chat)
+	rawJSON := []byte(`{"error": "user not present in chat"}`)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusBadRequest)
+	w.Write(rawJSON)
+
+	return
 }
 
 func (q *MessageHandlers) GetMessages(w http.ResponseWriter, r *http.Request) {

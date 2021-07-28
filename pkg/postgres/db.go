@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os"
 
@@ -20,7 +19,7 @@ func (db *DB) Conn() *pgx.Conn {
 func NewDB() (*DB, error) {
 	connstring := os.Getenv("CONN_DB")
 	if connstring == "" {
-		return nil, errors.New("Connection string is not set")
+		connstring = "postgres://avito_user:avito_pass@localhost:5433/avito"
 	}
 	conn, err := pgx.Connect(context.Background(), connstring)
 	if err != nil {

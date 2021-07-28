@@ -83,3 +83,23 @@ func (r *MessageRepo) GetOne(message messages.Message) (chats.Chat, error) {
 
 	return chat, nil
 }
+
+const (
+	GetUserInChat = "select chat_id, user_id from users_chats where user_id = $1 and chat_id=$2"
+)
+
+type UserChat struct {
+	ChatID int
+	UserID int
+}
+
+func (r *MessageRepo) CheckUser(message messages.Message) bool {
+	res := r.db.Conn().QueryRow(context.Background(), GetUserInChat, message.Author, message.Chat)
+
+	var tmp UserChat
+	if err := res.Scan(tmp); err != nil {
+		return false
+	}
+
+	return true
+}
