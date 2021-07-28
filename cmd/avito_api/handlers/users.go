@@ -69,7 +69,7 @@ func (q *UserHandlers) Create(w http.ResponseWriter, r *http.Request) {
 		}
 
 		message.MakeResponse(w, id, http.StatusCreated)
-		q.Log.Infof("Created user with id: {%d}", id)
+		q.Log.Infof("Created user with id: %d", id)
 
 		return
 	} else {

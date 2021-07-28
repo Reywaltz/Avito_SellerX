@@ -53,6 +53,8 @@ func (q *MessageHandlers) Create(w http.ResponseWriter, r *http.Request) {
 
 		q.Log.Infof("New message id: %d", messageID)
 		message.MakeResponse(w, messageID, http.StatusCreated)
+
+		return
 	}
 
 	q.Log.Errorf("User %d is not present in chat %d", newMessage.Author, newMessage.Chat)

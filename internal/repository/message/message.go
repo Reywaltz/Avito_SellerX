@@ -97,7 +97,7 @@ func (r *MessageRepo) CheckUser(message messages.Message) bool {
 	res := r.db.Conn().QueryRow(context.Background(), GetUserInChat, message.Author, message.Chat)
 
 	var tmp UserChat
-	if err := res.Scan(tmp); err != nil {
+	if err := res.Scan(&tmp.ChatID, &tmp.UserID); err != nil {
 		return false
 	}
 

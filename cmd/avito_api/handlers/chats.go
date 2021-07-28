@@ -69,7 +69,6 @@ func (q *ChatHandlers) Create(w http.ResponseWriter, r *http.Request) {
 	message.MakeResponse(w, chatID, http.StatusCreated)
 }
 
-// TODO Validate if user exsists.
 func (q *ChatHandlers) GetChats(w http.ResponseWriter, r *http.Request) {
 	var user users.User
 
@@ -96,6 +95,12 @@ func (q *ChatHandlers) GetChats(w http.ResponseWriter, r *http.Request) {
 
 	res, err := q.ChatRepo.GetChats(user)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			q.Log.Infof("User %d don't have any messages", user.ID)
+			w.WriteHeader(http.StatusNotFound)
+
+			return
+		}
 		q.Log.Errorf("Can't get chats: %s", err)
 		w.WriteHeader(http.StatusInternalServerError)
 
@@ -106,6 +111,8 @@ func (q *ChatHandlers) GetChats(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		q.Log.Errorf("Can't marshall: %s", err)
 		w.WriteHeader(http.StatusInternalServerError)
+
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
